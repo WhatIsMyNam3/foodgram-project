@@ -92,11 +92,11 @@ class UserViewSet(DjoserUserViewSet):
         permission_classes=[IsAuthenticated, ]
     )
     def subscriptions(self, request):
-        subscriptions = [i.follower for i in Subscription.objects.filter(following=request.user)]
-        if not subscriptions:
+        users = User.objects.filter(follower__following = request.user)
+        if not users.exists():
             return Response(status=status.HTTP_204_NO_CONTENT)
         serializer = SubscriptionSerializer(
-            subscriptions,
+            users,
             context={'request': self.request},
             many=True
         )
@@ -174,11 +174,11 @@ class RecipeViewSet(ModelViewSet):
         ingredients = IngredientRecipe.objects.filter(
             recipe__recipe_in_cart__user=user).values(
             'ingredient__name',
-            'ingredient__measurement_unit').annotate(amount=Sum('amount'))
+            'ingredient__measurement_unit').annotate(ingredient_amount=Sum('amount'))
         result = ['Список покупок:']
         for ingredient in ingredients:
             result.append(
-                f'    ·{ingredient["ingredient__name"]} — {ingredient["amount"]}'
+                f'    ·{ingredient["ingredient__name"]} — {ingredient["ingredient_amount"]}'
                 f' {ingredient["ingredient__measurement_unit"]}'
             )
         result = '\n'.join(result)

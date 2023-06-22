@@ -23,7 +23,7 @@ class RecipeAdmin(admin.ModelAdmin):
         return obj.favorites.count()
 
     def ingredients(self, obj):
-        return list(obj.ingredients.all())
+        return obj.objects.values_list('ingredients')
 
 
 class UserAdmin(admin.ModelAdmin):

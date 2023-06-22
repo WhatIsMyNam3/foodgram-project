@@ -1,5 +1,6 @@
+from django.db.models import Sum
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import status
@@ -14,7 +15,6 @@ from api.permissions import IsAdminOrReadOnly, IsOwnerOrIsAdminOrReadOnly
 from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                             ShoppingCart, Tag)
 from users.models import Subscription, User
-
 from .filters import RecipeFilter
 from .serializers import (CreateRecipeSerializer, IngredientSerializer,
                           RecipeSerializer, ShoppingCartSerializer,
@@ -92,14 +92,11 @@ class UserViewSet(DjoserUserViewSet):
         permission_classes=[IsAuthenticated, ]
     )
     def subscriptions(self, request):
-        subscriptions = Subscription.objects.filter(following=request.user)
-        if not subscriptions.exists():
+        subscriptions = [i.follower for i in Subscription.objects.filter(following=request.user)]
+        if not subscriptions:
             return Response(status=status.HTTP_204_NO_CONTENT)
-        user = []
-        for i in subscriptions:
-            user.append(i.follower)
         serializer = SubscriptionSerializer(
-            user,
+            subscriptions,
             context={'request': self.request},
             many=True
         )
@@ -175,28 +172,18 @@ class RecipeViewSet(ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         ingredients = IngredientRecipe.objects.filter(
-            recipe__recipe_in_cart__user=user)
-        shopping_list = {}
-        for ingredient in ingredients:
-            amount = ingredient.amount
-            name = ingredient.ingredient.name
-            measurement_unit = ingredient.ingredient.measurement_unit
-            if name in shopping_list:
-                shopping_list[name]['amount'] += amount
-            else:
-                shopping_list[name] = {
-                    'measurement_unit': measurement_unit,
-                    'amount': amount
-                }
+            recipe__recipe_in_cart__user=user).values(
+            'ingredient__name',
+            'ingredient__measurement_unit').annotate(amount=Sum('amount'))
         result = ['Список покупок:']
-        print(shopping_list)
-        for key, values in shopping_list.items():
+        for ingredient in ingredients:
             result.append(
-                f'    ·{key} — {values["amount"]} {values["measurement_unit"]}'
+                f'    ·{ingredient["ingredient__name"]} — {ingredient["amount"]}'
+                f' {ingredient["ingredient__measurement_unit"]}'
             )
-        shopping_list = '\n'.join(result)
+        result = '\n'.join(result)
         response = HttpResponse(
-            shopping_list,
+            result,
             content_type='text.txt; charset=utf-8'
         )
         response['Content-Disposition'] = 'attachment; filename=ShopList.txt'

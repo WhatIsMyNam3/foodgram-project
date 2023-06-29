@@ -1,4 +1,3 @@
----
 version: '3.3'
 services:
 
@@ -47,4 +46,3 @@ volumes:
   static_dir:
   media_dir:
   postgres_data:
-...

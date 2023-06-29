@@ -2,7 +2,7 @@ version: '3.3'
 services:
 
   frontend:
-    container_name: foodgram-front
+    container_name: foodgram-frontend
     build: ../frontend
     volumes:
       - ./frontend/:/app/result_build/
@@ -17,7 +17,7 @@ services:
       - ../.env
 
   backend:
-    container_name: foodgram-app
+    container_name: foodgram-backend
     build: ../backend
     restart: always
     volumes:

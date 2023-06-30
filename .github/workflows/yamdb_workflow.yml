@@ -80,7 +80,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            cd .\infra\
+            cd infra/
             sudo docker-compose stop
             sudo docker-compose rm backend
             sudo systemctl stat nginx

@@ -15,4 +15,5 @@ jobs:
             remote: ./
             host: ${{ secrets.HOST }}
             username: ${{ secrets.USER }}
-            password: ${{ secrets.PASSPHRASE }}
+            key: ${{ secrets.SSH_KEY }}
+            passphrase: ${{ secrets.PASSPHRASE }}

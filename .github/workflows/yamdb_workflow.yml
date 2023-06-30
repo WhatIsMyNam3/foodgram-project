@@ -19,6 +19,7 @@ jobs:
     - name: Test with flake8
       run: |
         python -m flake8 
+  
   copy_files_to_server:
     runs-on: ubuntu-latest
     steps:
@@ -26,8 +27,8 @@ jobs:
       - name: Copy infra files
         uses: garygrossgarten/github-action-scp@release
         with:
-            local: infra/
-            remote: /
+            local: ./infra/
+            remote: ./
             host: ${{ secrets.HOST }}
             username: ${{ secrets.USER }}
             privateKey: ${{ secrets.PASSPHRASE }}

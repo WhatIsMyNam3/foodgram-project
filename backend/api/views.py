@@ -93,8 +93,6 @@ class UserViewSet(DjoserUserViewSet):
     )
     def subscriptions(self, request):
         users = User.objects.filter(follower__following=request.user)
-        if not users.exists():
-            return Response([], status=status.HTTP_204_NO_CONTENT)
         serializer = SubscriptionSerializer(
             users,
             context={'request': self.request},
@@ -108,8 +106,9 @@ class RecipeViewSet(ModelViewSet):
     permission_classes = (IsOwnerOrIsAdminOrReadOnly, )
     pagination_class = LimitOffsetPagination
     pagination_class.default_limit = 6
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = RecipeFilter
+    search_fields = ['^recipes__ingredients']
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

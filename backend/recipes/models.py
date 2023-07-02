@@ -100,10 +100,15 @@ class Recipe(models.Model):
         verbose_name='Ингредиенты',
         through='IngredientRecipe'
     )
+    pub_date = models.DateTimeField(
+        verbose_name='Дата публикации',
+        auto_now_add=True,
+    )
 
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+        ordering = ['-pub_date']
 
 
 class IngredientRecipe(models.Model):

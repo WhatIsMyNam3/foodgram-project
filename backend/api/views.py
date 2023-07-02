@@ -107,8 +107,9 @@ class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (IsOwnerOrIsAdminOrReadOnly, )
     pagination_class = LimitOffsetPagination
-    filter_backends = [DjangoFilterBackend, ]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = RecipeFilter
+    search_fields = ['^recipes__ingredients__name']
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

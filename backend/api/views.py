@@ -94,7 +94,7 @@ class UserViewSet(DjoserUserViewSet):
     def subscriptions(self, request):
         users = User.objects.filter(follower__following=request.user)
         if not users.exists():
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response([], status=status.HTTP_204_NO_CONTENT)
         serializer = SubscriptionSerializer(
             users,
             context={'request': self.request},
@@ -107,6 +107,7 @@ class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (IsOwnerOrIsAdminOrReadOnly, )
     pagination_class = LimitOffsetPagination
+    pagination_class.default_limit = 6
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
 

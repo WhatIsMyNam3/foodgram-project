@@ -10,7 +10,7 @@ class IngredientFilter(SearchFilter):
     search_param = 'name'
 
 
-class RecipeFilter(filters.FilterSet):
+class RecipeFilter(filters.SearchFilter):
     author = filters.ModelChoiceFilter(
         queryset=User.objects.all()
     )

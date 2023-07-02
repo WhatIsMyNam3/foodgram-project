@@ -1,10 +1,16 @@
-from django_filters.rest_framework import FilterSet, filters
+from django_filters.rest_framework import filters
+from rest_framework.filters import SearchFilter
+
 
 from recipes.models import Recipe, Tag
 from users.models import User
 
 
-class RecipeFilter(FilterSet):
+class IngredientFilter(SearchFilter):
+    search_param = 'name'
+
+
+class RecipeFilter(filters.FilterSet):
     author = filters.ModelChoiceFilter(
         queryset=User.objects.all()
     )

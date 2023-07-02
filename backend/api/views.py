@@ -6,7 +6,7 @@ from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -15,7 +15,7 @@ from api.permissions import IsAdminOrReadOnly, IsOwnerOrIsAdminOrReadOnly
 from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                             ShoppingCart, Tag)
 from users.models import Subscription, User
-from .filters import RecipeFilter
+from .filters import IngredientFilter, RecipeFilter
 from .serializers import (CreateRecipeSerializer, IngredientSerializer,
                           RecipeSerializer, ShoppingCartSerializer,
                           SubscriptionSerializer, TagSerializer,
@@ -24,7 +24,7 @@ from .serializers import (CreateRecipeSerializer, IngredientSerializer,
 
 class UserViewSet(DjoserUserViewSet):
     queryset = User.objects.all()
-    pagination_class = LimitOffsetPagination
+    pagination_class = PageNumberPagination
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated, ]
 
@@ -93,19 +93,21 @@ class UserViewSet(DjoserUserViewSet):
     )
     def subscriptions(self, request):
         users = User.objects.filter(follower__following=request.user)
+        pages = self.paginate_queryset(users)
+
         serializer = SubscriptionSerializer(
-            users,
+            pages,
             context={'request': self.request},
             many=True
         )
-        return Response(serializer.data)
+        return self.get_paginated_response(serializer.data)
 
 
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (IsOwnerOrIsAdminOrReadOnly, )
-    pagination_class = LimitOffsetPagination
-    pagination_class.default_limit = 6
+    pagination_class = PageNumberPagination
+    pagination_class.page_size = 6
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = RecipeFilter
     search_fields = ['^recipes__ingredients']
@@ -197,7 +199,7 @@ class IngredientViewSet(ModelViewSet):
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly, )
     http_method_names = ['post', 'get', 'patch', 'delete']
-    filter_backends = [SearchFilter]
+    filter_backends = [IngredientFilter]
     search_fields = ['^name']
 
 

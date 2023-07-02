@@ -17,7 +17,8 @@ class Command(BaseCommand):
             for line in jsondata:
                 if not Ingredient.objects.filter(
                     name=line['name'],
-                    measurement_unit=line['measurement_unit']).exists():
+                    measurement_unit=line['measurement_unit']
+                ).exists():
                     Ingredient.objects.create(
                         name=line['name'],
                         measurement_unit=line['measurement_unit']

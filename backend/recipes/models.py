@@ -37,7 +37,6 @@ class Ingredient(models.Model):
     name = models.CharField(
         verbose_name='Название ингредиента',
         max_length=200,
-        unique=True,
         null=False,
         validators=(
             RegexValidator(

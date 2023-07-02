@@ -109,7 +109,6 @@ class RecipeViewSet(ModelViewSet):
     pagination_class = LimitOffsetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = RecipeFilter
-    search_fields = ['^recipes__ingredients__name']
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

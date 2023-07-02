@@ -250,8 +250,7 @@ class SubscriptionSerializer(UserSerializer):
         read_only=True
     )
     recipes_count = SerializerMethodField(
-        read_only=True,
-        default=False
+        read_only=True
     )
 
     class Meta:

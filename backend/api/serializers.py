@@ -204,13 +204,6 @@ class CreateRecipeSerializer(ModelSerializer):
             )
         return data
 
-    def validate_cooking_time(self, data):
-        if data < 1:
-            raise ValidationError(
-                {'cooking_time': 'Время готовки должно быть больше 0'}
-            )
-        return data
-
     def create_ingredients(self, ingredients, recipe):
         IngredientRecipe.objects.bulk_create([IngredientRecipe(
             ingredient=ingredient['id'],

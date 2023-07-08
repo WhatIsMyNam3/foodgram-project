@@ -7,10 +7,12 @@ from users.models import User
 
 
 class IngredientFilter(SearchFilter):
+    """Фильтр ингредиента для поиска по названию."""
     search_param = 'name'
 
 
 class RecipeFilter(FilterSet):
+    """Фильтр рецепта."""
     author = filters.ModelChoiceFilter(
         queryset=User.objects.all()
     )

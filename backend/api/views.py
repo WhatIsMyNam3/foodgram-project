@@ -22,6 +22,7 @@ from .serializers import (CreateRecipeSerializer, IngredientSerializer,
 
 
 class UserViewSet(DjoserUserViewSet):
+    """Вьюсет пользователя."""
     queryset = User.objects.all()
     pagination_class = PageNumberPagination
     serializer_class = UserSerializer
@@ -33,6 +34,7 @@ class UserViewSet(DjoserUserViewSet):
         permission_classes=[IsAuthenticated, ]
     )
     def me(self, request):
+        """Эндпоинт для получения информации о текущем пользователе."""
         serializer = UserSerializer(
             request.user,
             context={'request': request}
@@ -40,6 +42,7 @@ class UserViewSet(DjoserUserViewSet):
         return Response(serializer.data)
 
     def add_obj(self, author, id):
+        """Подписка на пользователя по id."""
         queryset = Subscription.objects.filter(
             following=author,
             follower__id=id
@@ -66,6 +69,7 @@ class UserViewSet(DjoserUserViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def del_obj(self, user, id):
+        """Удаление подписки на пользователя по id."""
         model = Subscription.objects.filter(following=user, follower__id=id)
         if model.exists():
             model.delete()
@@ -81,6 +85,7 @@ class UserViewSet(DjoserUserViewSet):
         permission_classes=[IsAuthenticated, ]
     )
     def subscribe(self, request, id):
+        """Эндпоинт для подписки на пользователя или отписки от него."""
         if request.method == 'POST':
             return self.add_obj(request.user, id)
         return self.del_obj(request.user, id)
@@ -91,6 +96,7 @@ class UserViewSet(DjoserUserViewSet):
         permission_classes=[IsAuthenticated, ]
     )
     def subscriptions(self, request):
+        """Эндпоинт для получения списка подписок."""
         users = User.objects.filter(follower__following=request.user)
         pages = self.paginate_queryset(users)
 
@@ -103,6 +109,7 @@ class UserViewSet(DjoserUserViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
+    """Вьюсет для рецепта."""
     queryset = Recipe.objects.all()
     permission_classes = (IsOwnerOrIsAdminOrReadOnly, )
     pagination_class = PageNumberPagination
@@ -115,11 +122,13 @@ class RecipeViewSet(ModelViewSet):
         serializer.save(author=self.request.user)
 
     def get_serializer_class(self):
+        """Выбор серилизатора в зависимости от метода."""
         if self.request in SAFE_METHODS:
             return RecipeSerializer
         return CreateRecipeSerializer
 
     def add_obj(self, obj, user, id):
+        """Добавление рецепта в список избранных или корзину."""
         if obj.objects.filter(user=user, recipe__id=id).exists():
             return Response(
                 {'errors': 'Рецепт уже в списке'},
@@ -131,6 +140,7 @@ class RecipeViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def del_obj(self, obj, user, id):
+        """Удаление рецепта из списока избранных или корзины."""
         model = obj.objects.filter(user=user, recipe__id=id)
         if model.exists():
             model.delete()
@@ -147,6 +157,7 @@ class RecipeViewSet(ModelViewSet):
         pagination_class=None
     )
     def shopping_cart(self, request, pk):
+        """Эндпоинт для добавления рецептов или удаления их из корзины."""
         if request.method == 'POST':
             return self.add_obj(ShoppingCart, request.user, pk)
         return self.del_obj(ShoppingCart, request.user, pk)
@@ -157,6 +168,7 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated, ]
     )
     def favorite(self, request, pk):
+        """Эндпоинт для добавления рецептов или удаления их из избранных."""
         if request.method == 'POST':
             return self.add_obj(Favorite, request.user, pk)
         return self.del_obj(Favorite, request.user, pk)
@@ -167,6 +179,7 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated, ]
     )
     def download_shopping_cart(self, request):
+        """Эндпоинт для скачивания ингредиентов из корзины."""
         user = request.user
         if not user.carts.exists():
             return Response(
@@ -195,6 +208,7 @@ class RecipeViewSet(ModelViewSet):
 
 
 class IngredientViewSet(ModelViewSet):
+    """Вьюсет для ингредиента."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly, )
@@ -204,6 +218,7 @@ class IngredientViewSet(ModelViewSet):
 
 
 class TagViewSet(ModelViewSet):
+    """Вьюсет для тэга."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = [IsAdminOrReadOnly, ]

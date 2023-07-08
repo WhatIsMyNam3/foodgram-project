@@ -112,6 +112,7 @@ class Recipe(models.Model):
 
 
 class IngredientRecipe(models.Model):
+    """Модель, связывающая рецепт и ингредиенты."""
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
@@ -139,6 +140,7 @@ class IngredientRecipe(models.Model):
 
 
 class ShoppingCart(models.Model):
+    """Модель корзины."""
     user = models.ForeignKey(
         User,
         related_name='carts',
@@ -163,6 +165,7 @@ class ShoppingCart(models.Model):
 
 
 class Favorite(models.Model):
+    """Модель избранных рецептов."""
     user = models.ForeignKey(
         User,
         related_name='favorites',

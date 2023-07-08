@@ -142,7 +142,7 @@ class RecipeSerializer(ModelSerializer):
 
 
 class ShoppingCartSerializer(ModelSerializer):
-    """Серилизатор списка покупок."""
+    """Серилизатор корзины."""
     image = Base64ImageField()
 
     class Meta:
